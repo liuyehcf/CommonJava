@@ -1,4 +1,4 @@
-package com.sunland.tree.rbtree;
+package com.sunland.datastructure.tree.rbtree;
 
 /**
  * Created by HCF on 2017/4/6.

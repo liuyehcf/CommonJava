@@ -1,10 +1,9 @@
-package com.sunland.tree.rbtree;
+package com.sunland.datastructure.tree.rbtree;
 
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
-
-import static com.sunland.tree.rbtree.Color.*;
+import static com.sunland.datastructure.tree.rbtree.Color.*;
 
 /**
  * Created by HCF on 2017/4/6.

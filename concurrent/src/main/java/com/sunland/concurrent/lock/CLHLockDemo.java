@@ -3,6 +3,7 @@ package com.sunland.concurrent.lock;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -15,7 +16,9 @@ class QNode {
 
 public class CLHLockDemo {
     AtomicReference<QNode> tail = new AtomicReference<QNode>(new QNode());
-    ThreadLocal<QNode> currNode;
+    ThreadLocal<QNode> currNode;//在本地变量上自旋
+
+    AtomicInteger order = new AtomicInteger();
 
     public CLHLockDemo() {
         tail = new AtomicReference<QNode>(new QNode());
@@ -29,26 +32,22 @@ public class CLHLockDemo {
     public void lock() {
         QNode curr = this.currNode.get();
         curr.locked = true;
+
+        //将当前节点通过CAS操作加到队列尾，返回原先的队列尾，作为它的前继节点
         QNode prev = tail.getAndSet(curr);
 
-        print();
+        int myOrder = order.getAndIncrement();
 
         while (prev.locked) {
+            //在本地变量prev上自旋
         }
+        System.out.println(Thread.currentThread() + " is hold the lock, order: " + myOrder);
     }
 
     public void unlock() {
         QNode qnode = currNode.get();
         qnode.locked = false;
-    }
-
-    private void print() {
-        System.out.println(Thread.currentThread() + " trying to acquire the lock");
-        try {
-            TimeUnit.SECONDS.sleep(1);
-        } catch (InterruptedException e) {
-
-        }
+        System.out.println(Thread.currentThread() + " is release the lock\n");
     }
 }
 
@@ -59,9 +58,10 @@ class CLHLockTask implements Runnable {
     public void run() {
         try {
             clhLockDemo.lock();
-            System.out.println("\n" + Thread.currentThread() + " acquired the lock");
+            TimeUnit.SECONDS.sleep(1);
+        } catch (InterruptedException e) {
+
         } finally {
-            System.out.println(Thread.currentThread() + " release the lock");
             clhLockDemo.unlock();
         }
     }

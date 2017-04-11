@@ -12,46 +12,48 @@ public class SpinLockDemo {
 
     private AtomicInteger state = new AtomicInteger();
 
-    public void lock(){
-        for(;;){
-            if(state.compareAndSet(0,1)) {
+    private AtomicInteger order = new AtomicInteger();
+
+    public void lock() {
+        int myOrder = order.getAndIncrement();
+
+        for (; ; ) {
+            if (state.compareAndSet(0, 1)) {
+                System.out.println(Thread.currentThread() + " is hold the lock, order: " + myOrder);
                 break;
             }
         }
     }
 
-    public void unlock(){
-        if(!state.compareAndSet(1,0)){
+    public void unlock() {
+        if (!state.compareAndSet(1, 0)) {
             throw new RuntimeException();
         }
+        System.out.println(Thread.currentThread() + " is release the lock\n");
     }
 }
 
-class SpinLockTask implements Runnable{
-    private final SpinLockDemo spinLockDemo=new SpinLockDemo();
+class SpinLockTask implements Runnable {
+    private final SpinLockDemo spinLockDemo = new SpinLockDemo();
 
-    public void run(){
-        System.out.println(Thread.currentThread()+" trying to acquire the lock");
+    public void run() {
         spinLockDemo.lock();
-        try{
-            System.out.println(Thread.currentThread()+" acquired the lock");
+        try {
             TimeUnit.SECONDS.sleep(1);
-        }catch(InterruptedException e){
+        } catch (InterruptedException e) {
 
-        }
-        finally{
+        } finally {
             spinLockDemo.unlock();
-            System.out.println(Thread.currentThread()+" release the lock\n");
         }
     }
 }
 
-class TestSpinLock{
+class TestSpinLock {
 
-    public static void main(String[] args){
-        SpinLockTask task=new SpinLockTask();
-        ExecutorService exec= Executors.newCachedThreadPool();
-        for(int i=0;i<10;i++){
+    public static void main(String[] args) {
+        SpinLockTask task = new SpinLockTask();
+        ExecutorService exec = Executors.newCachedThreadPool();
+        for (int i = 0; i < 10; i++) {
             exec.execute(task);
         }
 

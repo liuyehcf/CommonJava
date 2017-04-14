@@ -100,17 +100,15 @@ class Week145_1 {
 
             //dp[i][j]:表示前i关,答错j题的情况下,最少需要答对几次
             int[][] dp = new int[N + 1][M + 1];
-            Arrays.fill(dp[0], Integer.MAX_VALUE);
+            Arrays.fill(dp[0], 2000);
             dp[0][0] = 0;
 
             for (int i = 1; i <= N; i++) {//i为关卡号
                 for (int j = 0; j <= M; j++) {//j为答错的数量
-                    dp[i][j] = Integer.MAX_VALUE;
                     //wrong代表当前关卡答错的题数
+                    dp[i][j]=2000;
                     for (int wrong = 0; wrong <= j && wrong <= (A[i - 1] + T - 1) / T; wrong++) {
                         int right = ((A[i - 1] - wrong * T) + S - 1) / S;//当前关卡在答错wrong题下最少需要正确回答的题数
-                        if (right + wrong > M) continue;
-                        if (dp[i - 1][j - wrong] == Integer.MAX_VALUE) continue;
                         if (dp[i - 1][j - wrong] + right + wrong > M) continue;
                         if (dp[i - 1][j - wrong] + right > M - j) continue;
 
@@ -120,19 +118,82 @@ class Week145_1 {
                 }
             }
 
-//            for(int[] p:dp){
-//                System.out.println(Arrays.toString(p));
-//            }
-
-            int res = Integer.MAX_VALUE;
+            int res = 2000;
             for (int i : dp[N]) {
                 res = Math.min(res, i);
             }
 
-            System.out.println(res == Integer.MAX_VALUE ? "No" : res);
+            System.out.println(res == 2000 ? "No" : res);
         }
     }
 }
+
+
+/*
+#include<iostream>
+
+using namespace std;
+
+
+int min(int a, int b) {
+	return a <= b ? a : b;
+}
+
+int main() {
+	int Time;
+	cin >> Time;
+	while (--Time >= 0) {
+		int N, M, S, T;
+		cin >> N >> M >> S >> T;
+		int* A = new int[N];
+		for (int i = 0; i<N; i++) {
+			cin >> A[i];
+		}
+
+		int ** dp = new int*[N + 1];
+		for (int i = 0; i <= N; i++) {
+			dp[i] = new int[M + 1];
+		}
+
+		for (int i = 0; i <= N; i++) {
+			for (int j = 0; j <= M; j++) {
+				dp[i][j] = 2000;
+			}
+		}
+
+		dp[0][0] = 0;
+
+		int res = 2000;
+
+		for (int i = 1; i <= N; i++) {
+			for (int m = 0; m <= M; m++) {
+				for (int wrong = 0; wrong <= m&&wrong <= (A[i - 1] + T - 1) / T; wrong++) {
+					int right = (A[i - 1] - wrong*T + S - 1) / S;
+					if (dp[i - 1][m - wrong] + right + wrong > M) continue;
+					if (dp[i - 1][m - wrong] + right > M - m)continue;
+					dp[i][m] = min(dp[i][m], dp[i - 1][m - wrong] + right);
+				}
+				if (i == N) {
+					res = min(res, dp[i][m]);
+				}
+			}
+		}
+
+		if (res == 2000) {
+			cout << "No" << endl;
+		}
+		else {
+			cout << res << endl;
+		}
+
+		for (int i = 0; i <= N; i++) {
+			delete[] dp[i];
+		}
+		delete[] dp;
+	}
+	system("pause");
+}
+ */
 
 
 class Week145_2 {
